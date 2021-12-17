@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <title>Welcome to Firebase Hosting</title>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+  </head>
+  <body>
+
+    <p >Test Version 1</p>
+    <table border="1">
+	    <thead>
+	    	<tr>
+	    		<th>No.</th>
+	    		<th>name</th>
+	    		<th>image</th>
+	    		<th>link</th>
+	    		<th>action</th>
+	    	</tr>
+	    </thead>
+	    
+	    <tbody id="tbody1">
+	    </tbody>
+
+    </table>
+	<script type="module">
+		// Import the functions you need from the SDKs you need
+		
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
+		import * as S from "https://www.gstatic.com/firebasejs/9.1.1/firebase-storage.js";
+		import { getDatabase, ref, child, onValue, get, remove} 
+			from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
+		// TODO: Add SDKs for Firebase products that you want to use
+
+		// https://firebase.google.com/docs/web/setup#available-libraries
+
+
+		// Your web app's Firebase configuration
+
+		// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
+		const firebaseConfig = {
+
+		  apiKey: "AIzaSyAwkRebhS8fyKKYAabtgzTicyhcKeVp9kg",
+
+		  authDomain: "pushnotification-78cb4.firebaseapp.com",
+
+		  databaseURL: "https://pushnotification-78cb4-default-rtdb.firebaseio.com",
+
+		  projectId: "pushnotification-78cb4",
+
+		  storageBucket: "pushnotification-78cb4.appspot.com",
+
+		  messagingSenderId: "565380608757",
+
+		  appId: "1:565380608757:web:f9ccd2501e2329810e4bbc",
+
+		  measurementId: "G-6NLT9XDM21"
+
+		};
+
+
+		// Initialize Firebase
+		
+		const app = initializeApp(firebaseConfig);
+		const db = getDatabase();
+		const storage = S.getStorage(app);
+
+		var stdNo = 0;
+		var tbody = document.getElementById('tbody1');
+		function htmlentities(str) {
+		    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		}
+		function addItemsToTable(name, link) {
+		
+		    let trow = document.createElement('tr');
+		    let td1 = document.createElement('td');
+		    let td2 = document.createElement('td');
+		    let td3 = document.createElement('td');
+		    let td4 = document.createElement('td');
+		    let td5 = document.createElement('td');
+		    let but = document.createElement('button');
+		    but.addEventListener('click', function() {
+		    	onDel(name);
+		    });
+
+		    but.innerHTML = 'delete';
+		    
+		    td1.innerHTML = ++stdNo;
+		    td2.innerHTML = name;
+		    td3.innerHTML = "<img alt='not available' style='width:50px; height:50px' src='" + link + "'/>";
+		    console.log(link);
+		    td4.innerHTML = "<a href='" + link + "'>Download Now</a>";
+		    
+		    td5.appendChild(but);
+		    
+		    trow.appendChild(td1);
+		    trow.appendChild(td2);
+		    trow.appendChild(td3);
+		    trow.appendChild(td4);
+		    trow.appendChild(td5);
+
+		    
+		    tbody.appendChild(trow);
+		}
+		function AddAllItemsToTable(TheStudent) {
+			stdNo = 0;
+			tbody.innerHTML = "";
+			TheStudent.forEach(element => {
+				addItemsToTable(element.name, element.link);
+			});
+		}
+		function GetAllDataOnce() {
+			const dbRef = ref(db); 
+			get(child(dbRef, "links"))
+			.then((snapshot) => {
+				var students = [];
+				snapshot.forEach(childSnapshot => {
+					students.push(childSnapshot.val());
+				});
+				AddAllItemsToTable(students);
+			});
+		}
+		
+		function onDel(name) {
+				
+			remove(ref(db, "links/" + encodeURIComponent(name))).then(()=>{}).catch((e)=>{});
+			
+			S.deleteObject(S.ref(storage, 'images/' + name)).then(() => {console.log('deleted'); location.reload();}).catch((e)=>{console.log('not deleted');});
+			
+			
+		}
+		
+		window.onload = GetAllDataOnce;
+	
+	</script>
+    
+    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  </body>
+</html>
